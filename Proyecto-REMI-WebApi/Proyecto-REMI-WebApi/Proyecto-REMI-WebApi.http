@@ -1,0 +1,6 @@
+@Proyecto_REMI_WebApi_HostAddress = http://localhost:5059
+
+GET {{Proyecto_REMI_WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
