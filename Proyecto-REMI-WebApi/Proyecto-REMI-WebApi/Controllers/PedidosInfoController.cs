@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Models;
+using Proyecto_REMI_WebApi.Models.DTO_s;
 
 namespace Proyecto_REMI_WebApi.Controllers
 {
@@ -76,13 +77,57 @@ namespace Proyecto_REMI_WebApi.Controllers
         // POST: api/PedidosInfo
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<pedido>> Postpedido(pedido pedido)
+        public async Task<ActionResult<pedido>> Postpedido([FromBody] PedidoDto dto)
         {
-            _context.pedidos.Add(pedido);
+            // 👇 Validar que el modelo sea válido
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var lastOrder = await _context.pedidos
+                .OrderByDescending(o => o.codigoPedido)
+                .FirstOrDefaultAsync();
+
+            int nextNumber = lastOrder != null ? lastOrder.codigoPedido + 1 : 1;
+            string orderNumber = $"ORD-{nextNumber:D4}";
+
+            var order = new pedido
+            {
+                fechaPedido = dto.fechaPedido,
+                horaPedido = dto.horaPedido,
+                documentoCliente = dto.documentoCliente,
+                estadoPedido = dto.estadoPedido, // 👈 no olvides este campo
+                detallesPedidos = dto.detallesP.Select(i => new detallesPedido
+                {
+                    codigoProducto = i.codigoProducto, // 👈 aquí ojo: antes estabas copiando codigoPedido
+                    cantidadProducto = i.cantidadProducto,
+                    valorProducto = i.valorProducto
+                }).ToList()
+            };
+
+            _context.pedidos.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Getpedido", new { id = pedido.codigoPedido }, pedido);
+            // Mapear a DTO para devolver respuesta
+            var result = new Proyecto_REMI_WebApi.Models.DTO_s.totalPedidoDto
+            {
+                codigoPedido = order.codigoPedido,
+                fechaPedido = order.fechaPedido,
+                documentoCliente = order.documentoCliente,
+                detallesPe = order.detallesPedidos.Select(i => new Proyecto_REMI_WebApi.Models.DTO_s.pedidoDetalleDto
+                {
+                    codigoProducto = i.codigoProducto,
+                    cantidadProducto = i.cantidadProducto,
+                    valorProducto = i.valorProducto,
+                    totalPagoProducto = Math.Floor((i.valorProducto / 12) * i.cantidadProducto)
+                }).ToList(),
+                valorPedido = Math.Floor(order.detallesPedidos.Sum(i => (i.valorProducto / 12) * i.cantidadProducto))
+            };
+
+            return CreatedAtAction(nameof(Getpedidos), new { order.codigoPedido }, result);
         }
+
 
         // DELETE: api/PedidosInfo/5
         [HttpDelete("{id}")]
