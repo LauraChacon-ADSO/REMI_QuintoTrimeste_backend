@@ -21,5 +21,7 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
         public string estadoPedido { get; set; } = null!;
 
         public List<pedidoDetalleDto> detallesP { get; set; } = new();
+
+        public double valorPedido { get; set; }
     }
 }

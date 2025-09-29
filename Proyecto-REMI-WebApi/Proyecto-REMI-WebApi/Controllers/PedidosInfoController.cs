@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Humanizer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Models;
 using Proyecto_REMI_WebApi.Models.DTO_s;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Proyecto_REMI_WebApi.Controllers
 {
@@ -24,31 +26,69 @@ namespace Proyecto_REMI_WebApi.Controllers
 
         // GET: api/PedidosInfo
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<pedido>>> Getpedidos()
+        public async Task<ActionResult<IEnumerable<PedidoDto>>> Getpedidos()
         {
-            return await _context.pedidos.ToListAsync();
+            var pedidos = await _context.pedidos
+                .Include(p => p.detallesPedidos) // 👈 incluye los detalles
+                .Select(p => new PedidoDto
+                {
+                    codigoPedido = p.codigoPedido,
+                    fechaPedido = p.fechaPedido,
+                    horaPedido = p.horaPedido,
+                    documentoCliente = p.documentoCliente,
+                    estadoPedido = p.estadoPedido,
+                    valorPedido = p.valorPedido, // 👈 ya calculado por el trigger
+                    detallesP = p.detallesPedidos.Select(d => new pedidoDetalleDto
+                    {
+                        codigoProducto = d.codigoProducto,
+                        cantidadProducto = d.cantidadProducto,
+                        valorProducto = d.valorProducto,       // 👈 lo que puso el trigger
+                        totalPagoProducto = d.totalPagoProducto // 👈 también del trigger
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return Ok(pedidos);
         }
+
 
         // GET: api/PedidosInfo/5
         [HttpGet("{id}")]
         public async Task<ActionResult<pedido>> Getpedido(int id)
         {
-            var pedido = await _context.pedidos.FindAsync(id);
-
-            if (pedido == null)
+            var pedido = await _context.pedidos
+            .Include(p => p.detallesPedidos) // traemos también los detalles
+            .Where(p => p.codigoPedido == id) // filtramos por id
+            .Select(p => new PedidoDto
             {
-                return NotFound();
-            }
+                codigoPedido = p.codigoPedido,
+                fechaPedido = p.fechaPedido,
+                horaPedido = p.horaPedido,
+                documentoCliente = p.documentoCliente,
+                estadoPedido = p.estadoPedido,
+                detallesP = p.detallesPedidos.Select(i => new Models.DTO_s.pedidoDetalleDto
+                {
+                    codigoProducto = i.codigoProducto,
+                    cantidadProducto = i.cantidadProducto,
+                    valorProducto = i.valorProducto
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
 
-            return pedido;
+             if (pedido == null)
+             {
+                return NotFound();
+             }
+
+             return Ok(pedido);
         }
 
         // PUT: api/PedidosInfo/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Putpedido(int id, pedido pedido)
+        [HttpPut("{codigoPedido}")]
+        public async Task<IActionResult> Putpedido(int codigoPedido, pedido pedido)
         {
-            if (id != pedido.codigoPedido)
+            if (codigoPedido != pedido.codigoPedido)
             {
                 return BadRequest();
             }
@@ -61,7 +101,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!pedidoExists(id))
+                if (!pedidoExists(codigoPedido))
                 {
                     return NotFound();
                 }
@@ -79,75 +119,75 @@ namespace Proyecto_REMI_WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<pedido>> Postpedido([FromBody] PedidoDto dto)
         {
-            // 👇 Validar que el modelo sea válido
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            var lastOrder = await _context.pedidos
-                .OrderByDescending(o => o.codigoPedido)
-                .FirstOrDefaultAsync();
-
-            int nextNumber = lastOrder != null ? lastOrder.codigoPedido + 1 : 1;
-            string orderNumber = $"ORD-{nextNumber:D4}";
 
             var order = new pedido
             {
                 fechaPedido = dto.fechaPedido,
                 horaPedido = dto.horaPedido,
                 documentoCliente = dto.documentoCliente,
-                estadoPedido = dto.estadoPedido, // 👈 no olvides este campo
-                detallesPedidos = dto.detallesP.Select(i => new detallesPedido
+                estadoPedido = dto.estadoPedido,
+                detallesPedidos = dto.detallesP.Select(i => new Proyecto_REMI_WebApi.Models.detallesPedido
                 {
-                    codigoProducto = i.codigoProducto, // 👈 aquí ojo: antes estabas copiando codigoPedido
-                    cantidadProducto = i.cantidadProducto,
-                    valorProducto = i.valorProducto
+                    codigoProducto = i.codigoProducto,
+                    cantidadProducto = i.cantidadProducto
                 }).ToList()
             };
 
             _context.pedidos.Add(order);
             await _context.SaveChangesAsync();
 
-            // Mapear a DTO para devolver respuesta
+            // 👇 Recargar el pedido completo después de que el trigger actualizó valores
+            await _context.Entry(order).ReloadAsync();
+            await _context.Entry(order).Collection(p => p.detallesPedidos).LoadAsync();
+
             var result = new Proyecto_REMI_WebApi.Models.DTO_s.totalPedidoDto
             {
                 codigoPedido = order.codigoPedido,
                 fechaPedido = order.fechaPedido,
                 documentoCliente = order.documentoCliente,
+                valorPedido = order.valorPedido,  // 👈 ahora debería estar con valor del trigger
                 detallesPe = order.detallesPedidos.Select(i => new Proyecto_REMI_WebApi.Models.DTO_s.pedidoDetalleDto
                 {
                     codigoProducto = i.codigoProducto,
                     cantidadProducto = i.cantidadProducto,
                     valorProducto = i.valorProducto,
-                    totalPagoProducto = Math.Floor((i.valorProducto / 12) * i.cantidadProducto)
+                    totalPagoProducto = i.totalPagoProducto
                 }).ToList(),
-                valorPedido = Math.Floor(order.detallesPedidos.Sum(i => (i.valorProducto / 12) * i.cantidadProducto))
             };
 
             return CreatedAtAction(nameof(Getpedidos), new { order.codigoPedido }, result);
         }
 
-
         // DELETE: api/PedidosInfo/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Deletepedido(int id)
+        [HttpDelete("{codigoPedido}")]
+        public async Task<IActionResult> Deletepedido(int codigoPedido)
         {
-            var pedido = await _context.pedidos.FindAsync(id);
-            if (pedido == null)
-            {
-                return NotFound();
-            }
+            var pedido = await _context.pedidos
+            .Include(p => p.detallesPedidos)
+            .FirstOrDefaultAsync(p => p.codigoPedido == codigoPedido);
 
+            if (pedido == null)
+                return NotFound();
+
+            // eliminar los detalles primero
+            _context.detallesPedidos.RemoveRange(pedido.detallesPedidos);
+
+            // luego el pedido
             _context.pedidos.Remove(pedido);
+
             await _context.SaveChangesAsync();
 
             return NoContent();
+
         }
 
-        private bool pedidoExists(int id)
+        private bool pedidoExists(int codigoPedido)
         {
-            return _context.pedidos.Any(e => e.codigoPedido == id);
+            return _context.pedidos.Any(e => e.codigoPedido == codigoPedido);
         }
     }
 }

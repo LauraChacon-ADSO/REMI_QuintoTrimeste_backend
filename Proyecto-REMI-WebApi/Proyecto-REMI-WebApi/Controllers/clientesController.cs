@@ -23,23 +23,27 @@ namespace Proyecto_REMI_WebApi.Controllers
 
         // GET: api/clientes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<cliente>>> Getclientes()
+        public async Task<ActionResult<IEnumerable<cliente>>> GetClientes()
         {
-            return await _context.clientes.ToListAsync();
+            var clientes = await _context.clientes
+                .Include(c => c.pedidos)  
+                .ToListAsync();
+
+            return Ok(clientes);
         }
 
         // GET: api/clientes/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<cliente>> Getcliente(string id)
+        [HttpGet("{documentoCliente}")]
+        public async Task<ActionResult<cliente>> GetCliente(string documentoCliente)
         {
-            var cliente = await _context.clientes.FindAsync(id);
+            var cliente = await _context.clientes
+                .Include(c => c.pedidos)   
+                .FirstOrDefaultAsync(c => c.documentoCliente == documentoCliente);
 
             if (cliente == null)
-            {
                 return NotFound();
-            }
 
-            return cliente;
+            return Ok(cliente);
         }
 
         // PUT: api/clientes/5
@@ -99,10 +103,10 @@ namespace Proyecto_REMI_WebApi.Controllers
         }
 
         // DELETE: api/clientes/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Deletecliente(string id)
+        [HttpDelete("{documentoCliente}")]
+        public async Task<IActionResult> Deletecliente(string documentoCliente)
         {
-            var cliente = await _context.clientes.FindAsync(id);
+            var cliente = await _context.clientes.FindAsync(documentoCliente);
             if (cliente == null)
             {
                 return NotFound();

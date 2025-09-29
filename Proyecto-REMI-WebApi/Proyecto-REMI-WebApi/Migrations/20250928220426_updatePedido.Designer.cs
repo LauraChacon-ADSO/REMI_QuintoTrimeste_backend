@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Proyecto_REMI_WebApi.Datos;
 
@@ -11,9 +12,11 @@ using Proyecto_REMI_WebApi.Datos;
 namespace Proyecto_REMI_WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250928220426_updatePedido")]
+    partial class updatePedido
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,8 +119,6 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.HasIndex("codigoProducto");
 
                     b.ToTable("detallesPedido");
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Proyecto_REMI_WebApi.Models.detallesRecibo", b =>
@@ -285,8 +286,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.Property<TimeOnly>("horaPedido")
                         .HasColumnType("time");
 
-                    b.Property<double>("valorPedido")
-                        .HasColumnType("float");
+                    b.Property<decimal>("valorPedido")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("codigoPedido")
                         .HasName("PK__pedidos__01D75982835F2DCC");
@@ -294,8 +295,6 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.HasIndex("documentoCliente");
 
                     b.ToTable("pedidos");
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Proyecto_REMI_WebApi.Models.producto", b =>
@@ -329,8 +328,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(45)");
 
-                    b.Property<decimal>("precioProducto")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double?>("precioProducto")
+                        .HasColumnType("float");
 
                     b.Property<int?>("salidaProducto")
                         .HasColumnType("int");
