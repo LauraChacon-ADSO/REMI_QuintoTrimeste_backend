@@ -4,11 +4,13 @@
     {
         public int codigoReciboVenta { get; set; }
 
-        public DateTime fechaRecibo { get; set; }
+        public DateOnly fechaRecibo { get; set; }
+        public TimeOnly horaRecibo { get; set; }
 
-        public decimal totalRecibo { get; set; }
+        public double totalRecibo { get; set; }
 
         // 🔽 El pedido asociado a este recibo
         public PedidoDto Pedido { get; set; } = null!;
+        public List<pagoFormaDto> formasPago { get; set; } = new();
     }
 }

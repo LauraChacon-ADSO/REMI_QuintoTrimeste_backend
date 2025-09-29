@@ -15,8 +15,6 @@ public partial class reciboVenta
 
     public TimeOnly horaReciboVenta { get; set; }
 
-    public double valorVenta { get; set; }
-
     public double totalVenta { get; set; }
 
     public int codigoPedido { get; set; }

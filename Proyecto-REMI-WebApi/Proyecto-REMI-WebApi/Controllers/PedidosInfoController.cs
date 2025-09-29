@@ -86,14 +86,47 @@ namespace Proyecto_REMI_WebApi.Controllers
         // PUT: api/PedidosInfo/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{codigoPedido}")]
-        public async Task<IActionResult> Putpedido(int codigoPedido, pedido pedido)
+        public async Task<IActionResult> Putpedido(int codigoPedido, [FromBody] PedidoDto dto)
         {
-            if (codigoPedido != pedido.codigoPedido)
+            if (codigoPedido != dto.codigoPedido)
             {
                 return BadRequest();
             }
 
-            _context.Entry(pedido).State = EntityState.Modified;
+            var pedido = await _context.pedidos
+                .Include(p => p.detallesPedidos) // 👈 Incluimos los detalles
+                .FirstOrDefaultAsync(p => p.codigoPedido == codigoPedido);
+
+            if (pedido == null)
+            {
+                return NotFound();
+            }
+
+            // ✅ Actualizar campos principales
+            pedido.estadoPedido = dto.estadoPedido;
+            pedido.valorPedido = dto.valorPedido;
+            pedido.documentoCliente = dto.documentoCliente;
+            pedido.fechaPedido = dto.fechaPedido;
+            pedido.horaPedido = dto.horaPedido;
+
+            // ✅ Si necesitas actualizar detalles
+            if (dto.detallesP != null && dto.detallesP.Any())
+            {
+                // Borro los detalles anteriores
+                pedido.detallesPedidos.Clear();
+
+                // Agrego los nuevos
+                foreach (var detalleDto in dto.detallesP)
+                {
+                    pedido.detallesPedidos.Add(new detallesPedido
+                    {
+                        codigoProducto = detalleDto.codigoProducto,
+                        cantidadProducto = detalleDto.cantidadProducto,
+                        valorProducto = detalleDto.valorProducto,
+                        totalPagoProducto = detalleDto.totalPagoProducto
+                    });
+                }
+            }
 
             try
             {
@@ -113,6 +146,7 @@ namespace Proyecto_REMI_WebApi.Controllers
 
             return NoContent();
         }
+
 
         // POST: api/PedidosInfo
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
