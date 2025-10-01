@@ -15,11 +15,10 @@ public partial class reciboVenta
 
     public TimeOnly horaReciboVenta { get; set; }
 
-    public double valorVenta { get; set; }
-
-    public double totalVenta { get; set; }
+    public decimal totalVenta { get; set; }
 
     public int codigoPedido { get; set; }
+    public decimal saldoPendiente { get; set; }
 
     [ForeignKey("codigoPedido")]
     [InverseProperty("reciboVenta")]
