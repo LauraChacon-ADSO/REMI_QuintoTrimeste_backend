@@ -12,7 +12,7 @@ using Proyecto_REMI_WebApi.Datos;
 namespace Proyecto_REMI_WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250928220426_updatePedido")]
+    [Migration("20250930045221_updatePedido")]
     partial class updatePedido
     {
         /// <inheritdoc />
@@ -119,6 +119,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.HasIndex("codigoProducto");
 
                     b.ToTable("detallesPedido");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Proyecto_REMI_WebApi.Models.detallesRecibo", b =>
@@ -129,14 +131,14 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.Property<int>("codigoProducto")
                         .HasColumnType("int");
 
-                    b.Property<double>("cantidadProductoRecibo")
-                        .HasColumnType("float");
+                    b.Property<decimal>("cantidadProductoRecibo")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("totalProductoRecibo")
-                        .HasColumnType("float");
+                    b.Property<decimal>("totalProductoRecibo")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("valorUnitarioRecibo")
-                        .HasColumnType("float");
+                    b.Property<decimal>("valorUnitarioRecibo")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("codigoReciboVenta", "codigoProducto")
                         .HasName("PK__detalles__A884E8EF75E22B97");
@@ -295,6 +297,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.HasIndex("documentoCliente");
 
                     b.ToTable("pedidos");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Proyecto_REMI_WebApi.Models.producto", b =>
@@ -328,8 +332,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(45)");
 
-                    b.Property<double?>("precioProducto")
-                        .HasColumnType("float");
+                    b.Property<decimal>("precioProducto")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("salidaProducto")
                         .HasColumnType("int");
@@ -412,8 +416,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.Property<int>("codigoFormaPago")
                         .HasColumnType("int");
 
-                    b.Property<double>("valorPago")
-                        .HasColumnType("float");
+                    b.Property<decimal>("valorPago")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("codigoReciboVenta", "codigoFormaPago")
                         .HasName("PK__reciboPa__87C217CC60D04857");
@@ -440,11 +444,8 @@ namespace Proyecto_REMI_WebApi.Migrations
                     b.Property<TimeOnly>("horaReciboVenta")
                         .HasColumnType("time");
 
-                    b.Property<double>("totalVenta")
-                        .HasColumnType("float");
-
-                    b.Property<double>("valorVenta")
-                        .HasColumnType("float");
+                    b.Property<decimal>("totalVenta")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("codigoReciboVenta")
                         .HasName("PK__reciboVe__A3490F91903EC6B6");

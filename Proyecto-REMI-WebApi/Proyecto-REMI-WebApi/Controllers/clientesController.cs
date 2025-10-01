@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Models;
+using Proyecto_REMI_WebApi.Models.DTO_s;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Proyecto_REMI_WebApi.Controllers
 {
@@ -26,7 +27,7 @@ namespace Proyecto_REMI_WebApi.Controllers
         public async Task<ActionResult<IEnumerable<cliente>>> GetClientes()
         {
             var clientes = await _context.clientes
-                .Include(c => c.pedidos)  
+                .Include(c => c.pedidos)
                 .ToListAsync();
 
             return Ok(clientes);
@@ -37,7 +38,7 @@ namespace Proyecto_REMI_WebApi.Controllers
         public async Task<ActionResult<cliente>> GetCliente(string documentoCliente)
         {
             var cliente = await _context.clientes
-                .Include(c => c.pedidos)   
+                .Include(c => c.pedidos)
                 .FirstOrDefaultAsync(c => c.documentoCliente == documentoCliente);
 
             if (cliente == null)
@@ -46,15 +47,56 @@ namespace Proyecto_REMI_WebApi.Controllers
             return Ok(cliente);
         }
 
-        // PUT: api/clientes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Putcliente(string id, cliente cliente)
+        // POST: api/clientes
+        [HttpPost]
+        public async Task<ActionResult<cliente>> PostCliente([FromBody] clientesInfoDto dto)
         {
-            if (id != cliente.documentoCliente)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var cliente = new cliente
             {
-                return BadRequest();
+                documentoCliente = dto.documentoCliente,
+                tipoDocumentoCliente = dto.tipoDocumentoCliente,
+                nombreCliente = dto.nombreCliente,
+                apellidoCliente = dto.apellidoCliente,
+                correoCliente = dto.correoCliente,
+                telefonoCliente = dto.telefonoCliente
+            };
+
+            _context.clientes.Add(cliente);
+            try
+            {
+                await _context.SaveChangesAsync();
             }
+            catch (DbUpdateException)
+            {
+                if (ClienteExists(cliente.documentoCliente))
+                    return Conflict();
+                else
+                    throw;
+            }
+
+            return CreatedAtAction(nameof(GetCliente), new { documentoCliente = cliente.documentoCliente }, cliente);
+        }
+
+        // PUT: api/clientes/5
+        [HttpPut("{documentoCliente}")]
+        public async Task<IActionResult> PutCliente(string documentoCliente, [FromBody] clientesInfoDto dto)
+        {
+            if (documentoCliente != dto.documentoCliente)
+                return BadRequest("El documento de cliente no coincide.");
+
+            var cliente = await _context.clientes.FindAsync(documentoCliente);
+            if (cliente == null)
+                return NotFound();
+
+            // Mapear DTO a entidad
+            cliente.tipoDocumentoCliente = dto.tipoDocumentoCliente;
+            cliente.nombreCliente = dto.nombreCliente;
+            cliente.apellidoCliente = dto.apellidoCliente;
+            cliente.correoCliente = dto.correoCliente;
+            cliente.telefonoCliente = dto.telefonoCliente;
 
             _context.Entry(cliente).State = EntityState.Modified;
 
@@ -64,53 +106,22 @@ namespace Proyecto_REMI_WebApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!clienteExists(id))
-                {
+                if (!ClienteExists(documentoCliente))
                     return NotFound();
-                }
                 else
-                {
                     throw;
-                }
             }
 
             return NoContent();
         }
 
-        // POST: api/clientes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<cliente>> Postcliente(cliente cliente)
-        {
-            _context.clientes.Add(cliente);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (clienteExists(cliente.documentoCliente))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("Getcliente", new { id = cliente.documentoCliente }, cliente);
-        }
-
         // DELETE: api/clientes/5
         [HttpDelete("{documentoCliente}")]
-        public async Task<IActionResult> Deletecliente(string documentoCliente)
+        public async Task<IActionResult> DeleteCliente(string documentoCliente)
         {
             var cliente = await _context.clientes.FindAsync(documentoCliente);
             if (cliente == null)
-            {
                 return NotFound();
-            }
 
             _context.clientes.Remove(cliente);
             await _context.SaveChangesAsync();
@@ -118,9 +129,9 @@ namespace Proyecto_REMI_WebApi.Controllers
             return NoContent();
         }
 
-        private bool clienteExists(string id)
+        private bool ClienteExists(string documentoCliente)
         {
-            return _context.clientes.Any(e => e.documentoCliente == id);
+            return _context.clientes.Any(e => e.documentoCliente == documentoCliente);
         }
     }
 }

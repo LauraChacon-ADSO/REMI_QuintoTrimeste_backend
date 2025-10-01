@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Models;
+using Proyecto_REMI_WebApi.Models.DTO_s;
 
 namespace Proyecto_REMI_WebApi.Controllers
 {
@@ -21,84 +22,84 @@ namespace Proyecto_REMI_WebApi.Controllers
             _context = context;
         }
 
-        // GET: api/formaPagoes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<formaPago>>> GetformaPagos()
+        public async Task<ActionResult<IEnumerable<pagoFormaDto>>> GetFormasPago()
         {
-            return await _context.formaPagos.ToListAsync();
+            var formasPago = await _context.formaPagos
+                .Select(f => new pagoFormaDto
+                {
+                    codigoFormaPago = f.codigoFormaPago,
+                    nombreFormaPago = f.nombreFormaPago
+                })
+                .ToListAsync();
+
+            return Ok(formasPago);
         }
 
-        // GET: api/formaPagoes/5
+        // ✅ GET: api/FormaPago/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<formaPago>> GetformaPago(int id)
+        public async Task<ActionResult<pagoFormaDto>> GetFormaPago(int id)
         {
             var formaPago = await _context.formaPagos.FindAsync(id);
 
             if (formaPago == null)
-            {
                 return NotFound();
-            }
 
-            return formaPago;
+            return new pagoFormaDto
+            {
+                codigoFormaPago = formaPago.codigoFormaPago,
+                nombreFormaPago = formaPago.nombreFormaPago
+            };
         }
 
-        // PUT: api/formaPagoes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutformaPago(int id, formaPago formaPago)
+        // ✅ POST: api/FormaPago
+        [HttpPost]
+        public async Task<ActionResult<pagoFormaDto>> PostFormaPago([FromBody] pagoFormaDto dto)
         {
-            if (id != formaPago.codigoFormaPago)
+            var formaPago = new formaPago
             {
+                nombreFormaPago = dto.nombreFormaPago
+            };
+
+            _context.formaPagos.Add(formaPago);
+            await _context.SaveChangesAsync();
+
+            dto.codigoFormaPago = formaPago.codigoFormaPago;
+
+            return CreatedAtAction(nameof(GetFormaPago), new { id = dto.codigoFormaPago }, dto);
+        }
+
+        // ✅ PUT: api/FormaPago/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutFormaPago(int id, [FromBody] pagoFormaDto dto)
+        {
+            if (id != dto.codigoFormaPago)
                 return BadRequest();
-            }
 
-            _context.Entry(formaPago).State = EntityState.Modified;
+            var formaPago = await _context.formaPagos.FindAsync(id);
+            if (formaPago == null)
+                return NotFound();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!formaPagoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            formaPago.nombreFormaPago = dto.nombreFormaPago;
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // POST: api/formaPagoes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<formaPago>> PostformaPago(formaPago formaPago)
-        {
-            _context.formaPagos.Add(formaPago);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetformaPago", new { id = formaPago.codigoFormaPago }, formaPago);
-        }
-
-        // DELETE: api/formaPagoes/5
+        // ✅ DELETE: api/FormaPago/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteformaPago(int id)
+        public async Task<IActionResult> DeleteFormaPago(int id)
         {
             var formaPago = await _context.formaPagos.FindAsync(id);
             if (formaPago == null)
-            {
                 return NotFound();
-            }
 
             _context.formaPagos.Remove(formaPago);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
 
         private bool formaPagoExists(int id)
         {

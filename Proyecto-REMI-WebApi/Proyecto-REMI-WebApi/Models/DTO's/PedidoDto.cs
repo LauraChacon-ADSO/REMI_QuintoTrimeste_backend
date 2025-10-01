@@ -22,6 +22,7 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
 
         public List<pedidoDetalleDto> detallesP { get; set; } = new();
 
-        public double valorPedido { get; set; }
+        public decimal valorPedido { get; set; }
+
     }
 }

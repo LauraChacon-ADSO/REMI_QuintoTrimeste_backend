@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
@@ -30,41 +31,35 @@ namespace Proyecto_REMI_WebApi.Controllers
                 .Include(r => r.codigoPedidoNavigation)
                     .ThenInclude(p => p.detallesPedidos)
                 .Include(r => r.reciboPagos)
-                    .ThenInclude(rp => rp.codigoFormaPagoNavigation)
                 .Select(r => new ventaReciboDto
                 {
                     codigoReciboVenta = r.codigoReciboVenta,
-                    fechaRecibo = r.fechaReciboVenta,
-                    horaRecibo = r.horaReciboVenta,
-                    totalRecibo = r.totalVenta,
-                    Pedido = new PedidoDto
-                    {
-                        codigoPedido = r.codigoPedidoNavigation.codigoPedido,
-                        estadoPedido = r.codigoPedidoNavigation.estadoPedido,
-                        valorPedido = r.codigoPedidoNavigation.valorPedido,
-                        documentoCliente = r.codigoPedidoNavigation.documentoCliente,
-                        detallesP = r.codigoPedidoNavigation.detallesPedidos
-                            .Select(d => new pedidoDetalleDto
-                            {
-                                codigoProducto = d.codigoProducto,
-                                cantidadProducto = d.cantidadProducto,
-                                valorProducto = d.valorProducto,
-                                totalPagoProducto = d.totalPagoProducto
-                            }).ToList()
-                    },
-                    formasPago = r.reciboPagos.Select(rp => new pagoFormaDto
-                    {
-                        codigoFormaPago = rp.codigoFormaPago,
-                        nombreFormaPago = rp.codigoFormaPagoNavigation.nombreFormaPago, // <- navegación
-                        valorPago = rp.valorPago
-                    }).ToList()
-
+                    fechaReciboVenta = r.fechaReciboVenta,
+                    horaReciboVenta = r.horaReciboVenta,
+                    totalVenta = r.totalVenta,
+                    valorPago = r.reciboPagos.Sum(p => p.valorPago),
+                    saldoPendiente = Math.Max(0, r.totalVenta - r.reciboPagos.Sum(p => p.valorPago)),
+                    codigoPedido = r.codigoPedidoNavigation.codigoPedido,
+                    documentoCliente = r.codigoPedidoNavigation.documentoCliente,
+                    estadoPedido = r.codigoPedidoNavigation.estadoPedido,
+                    detalles = r.codigoPedidoNavigation.detallesPedidos
+                        .Select(d => new pedidoDetalleDto
+                        {
+                            codigoProducto = d.codigoProducto,
+                            cantidadProducto = d.cantidadProducto,
+                            valorProducto = d.valorProducto,
+                            totalPagoProducto = d.totalPagoProducto
+                        }).ToList(),
+                    cambio = r.reciboPagos.Sum(p => p.valorPago) > r.totalVenta
+                     ? r.reciboPagos.Sum(p => p.valorPago) - r.totalVenta
+                     : 0
                 })
                 .ToListAsync();
 
             return Ok(recibos);
         }
-        // GET: api/reciboVentas/5
+
+        // GET: api/reciboVenta/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ventaReciboDto>> GetRecibo(int id)
         {
@@ -72,95 +67,128 @@ namespace Proyecto_REMI_WebApi.Controllers
                 .Include(r => r.codigoPedidoNavigation)
                     .ThenInclude(p => p.detallesPedidos)
                 .Include(r => r.reciboPagos)
-                    .ThenInclude(rp => rp.codigoFormaPagoNavigation)
                 .Where(r => r.codigoReciboVenta == id)
                 .Select(r => new ventaReciboDto
                 {
                     codigoReciboVenta = r.codigoReciboVenta,
-                    fechaRecibo = r.fechaReciboVenta,
-                    horaRecibo = r.horaReciboVenta,
-                    totalRecibo = r.totalVenta,
-                    Pedido = new PedidoDto
-                    {
-                        codigoPedido = r.codigoPedidoNavigation.codigoPedido,
-                        estadoPedido = r.codigoPedidoNavigation.estadoPedido,
-                        valorPedido = r.codigoPedidoNavigation.valorPedido,
-                        documentoCliente = r.codigoPedidoNavigation.documentoCliente,
-                        detallesP = r.codigoPedidoNavigation.detallesPedidos.Select(d => new pedidoDetalleDto
+                    fechaReciboVenta = r.fechaReciboVenta,
+                    horaReciboVenta = r.horaReciboVenta,
+                    totalVenta = r.totalVenta,
+                    valorPago = r.reciboPagos.Sum(p => p.valorPago),
+                    saldoPendiente = Math.Max(0, r.totalVenta - r.reciboPagos.Sum(p => p.valorPago)),
+                    codigoPedido = r.codigoPedidoNavigation.codigoPedido,
+                    documentoCliente = r.codigoPedidoNavigation.documentoCliente,
+                    estadoPedido = r.codigoPedidoNavigation.estadoPedido,
+                    detalles = r.codigoPedidoNavigation.detallesPedidos
+                        .Select(d => new pedidoDetalleDto
                         {
                             codigoProducto = d.codigoProducto,
                             cantidadProducto = d.cantidadProducto,
                             valorProducto = d.valorProducto,
                             totalPagoProducto = d.totalPagoProducto
-                        }).ToList()
-                    },
-                    formasPago = r.reciboPagos.Select(rp => new pagoFormaDto
-                    {
-                        codigoFormaPago = rp.codigoFormaPago,
-                        nombreFormaPago = rp.codigoFormaPagoNavigation.nombreFormaPago,
-                        valorPago = rp.valorPago
-                    }).ToList()
+                        }).ToList(),
+                    cambio = r.reciboPagos.Sum(p => p.valorPago) > r.totalVenta
+                     ? r.reciboPagos.Sum(p => p.valorPago) - r.totalVenta
+                     : 0
                 })
-        .ToListAsync();
+                .FirstOrDefaultAsync();
 
+            if (recibo == null) return NotFound();
             return Ok(recibo);
         }
 
-        // POST: api/reciboVentas
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/reciboVenta
         [HttpPost]
-        public async Task<ActionResult<PedidoDto>> PostPedido([FromBody] PedidoDto dto)
+        public async Task<ActionResult> PostReciboPago([FromBody] crearReciboPagoDto dto)
         {
-            var pedido = new pedido
+            var recibo = await _context.reciboVenta
+                .FirstOrDefaultAsync(r => r.codigoReciboVenta == dto.codigoReciboVenta);
+
+            if (recibo == null)
+                return NotFound("Recibo no encontrado");
+
+            // Guardar el pago
+            var pago = new reciboPago
             {
-                estadoPedido = dto.estadoPedido,
-                valorPedido = dto.valorPedido,
-                documentoCliente = dto.documentoCliente,
-                fechaPedido = DateOnly.FromDateTime(DateTime.Now)
+                codigoReciboVenta = dto.codigoReciboVenta,
+                codigoFormaPago = dto.codigoFormaPago,
+                valorPago = dto.valorPago
             };
 
-            _context.pedidos.Add(pedido);
+            _context.reciboPagos.Add(pago);
+
+            // Recalcular saldo pendiente
+            var totalPagado = _context.reciboPagos
+                .Where(rp => rp.codigoReciboVenta == dto.codigoReciboVenta)
+                .Sum(rp => rp.valorPago) + dto.valorPago; // incluir el que estoy insertando
+
+            recibo.saldoPendiente = Math.Max(0, recibo.totalVenta - totalPagado);
+
             await _context.SaveChangesAsync();
 
-            if (pedido.estadoPedido == "Completado")
+            return Ok(new
             {
-                var recibo = new reciboVenta
-                {
-                    fechaReciboVenta = DateOnly.FromDateTime(DateTime.Now),
-                    horaReciboVenta = TimeOnly.FromDateTime(DateTime.Now),
-                    totalVenta = pedido.valorPedido,
-                    codigoPedido = pedido.codigoPedido
-                };
+                recibo.codigoReciboVenta,
+                recibo.totalVenta,
+                recibo.saldoPendiente
+            });
+        }
 
-                _context.reciboVenta.Add(recibo);
-                await _context.SaveChangesAsync();
-            }
+        // PUT: api/reciboVenta/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutRecibo(int id, reciboVenta reciboUpdate)
+        {
+            if (id != reciboUpdate.codigoReciboVenta)
+                return BadRequest();
 
-            dto.codigoPedido = pedido.codigoPedido; // devolver ID generado
+            var recibo = await _context.reciboVenta
+                .Include(r => r.reciboPagos)
+                .FirstOrDefaultAsync(r => r.codigoReciboVenta == id);
 
-            return CreatedAtAction(nameof(GetRecibos), new { id = pedido.codigoPedido }, dto);
+            if (recibo == null)
+                return NotFound();
+
+            // Actualizar campos editables
+            recibo.fechaReciboVenta = reciboUpdate.fechaReciboVenta;
+            recibo.horaReciboVenta = reciboUpdate.horaReciboVenta;
+            recibo.totalVenta = reciboUpdate.totalVenta;
+
+            // Recalcular saldo
+            var totalPagado = recibo.reciboPagos.Sum(p => p.valorPago);
+            var saldoPendiente = recibo.totalVenta - totalPagado;
+
+            recibo.saldoPendiente = saldoPendiente < 0 ? 0 : saldoPendiente;
+
+            await _context.SaveChangesAsync();
+
+            // Calcular cambio solo para respuesta
+            var cambio = totalPagado > recibo.totalVenta
+                         ? totalPagado - recibo.totalVenta
+                         : 0;
+
+            return Ok(new
+            {
+                recibo.codigoReciboVenta,
+                recibo.totalVenta,
+                totalPagado,
+                recibo.saldoPendiente,
+                cambio
+            });
         }
 
 
-        // DELETE: api/reciboVentas/5
+        // DELETE: api/reciboVenta/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletereciboVenta(int id)
+        public async Task<IActionResult> DeleteRecibo(int id)
         {
-            var reciboVenta = await _context.reciboVenta.FindAsync(id);
-            if (reciboVenta == null)
-            {
-                return NotFound();
-            }
+            var recibo = await _context.reciboVenta.FindAsync(id);
+            if (recibo == null) return NotFound();
 
-            _context.reciboVenta.Remove(reciboVenta);
+            _context.reciboVenta.Remove(recibo);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
-
-        private bool reciboVentaExists(int id)
-        {
-            return _context.reciboVenta.Any(e => e.codigoReciboVenta == id);
-        }
     }
 }
+

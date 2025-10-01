@@ -25,11 +25,18 @@ namespace Proyecto_REMI_WebApi.Controllers
         }
 
         // GET: api/PedidosInfo
+        // 🔹 Helper de redondeo
+        private decimal Redondear(decimal valor, int multiplo)
+        {
+            return Math.Round(valor / multiplo, MidpointRounding.AwayFromZero) * multiplo;
+        }
+
+        // ✅ GET: api/PedidosInfo
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PedidoDto>>> Getpedidos()
+        public async Task<ActionResult<IEnumerable<PedidoDto>>> GetPedidos()
         {
             var pedidos = await _context.pedidos
-                .Include(p => p.detallesPedidos) // 👈 incluye los detalles
+                .Include(p => p.detallesPedidos)
                 .Select(p => new PedidoDto
                 {
                     codigoPedido = p.codigoPedido,
@@ -37,13 +44,13 @@ namespace Proyecto_REMI_WebApi.Controllers
                     horaPedido = p.horaPedido,
                     documentoCliente = p.documentoCliente,
                     estadoPedido = p.estadoPedido,
-                    valorPedido = p.valorPedido, // 👈 ya calculado por el trigger
+                    valorPedido = p.valorPedido,
                     detallesP = p.detallesPedidos.Select(d => new pedidoDetalleDto
                     {
                         codigoProducto = d.codigoProducto,
                         cantidadProducto = d.cantidadProducto,
-                        valorProducto = d.valorProducto,       // 👈 lo que puso el trigger
-                        totalPagoProducto = d.totalPagoProducto // 👈 también del trigger
+                        valorProducto = d.valorProducto,
+                        totalPagoProducto = d.totalPagoProducto
                     }).ToList()
                 })
                 .ToListAsync();
@@ -51,172 +58,165 @@ namespace Proyecto_REMI_WebApi.Controllers
             return Ok(pedidos);
         }
 
-
-        // GET: api/PedidosInfo/5
+        // ✅ GET: api/PedidosInfo/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<pedido>> Getpedido(int id)
+        public async Task<ActionResult<PedidoDto>> GetPedido(int id)
         {
             var pedido = await _context.pedidos
-            .Include(p => p.detallesPedidos) // traemos también los detalles
-            .Where(p => p.codigoPedido == id) // filtramos por id
-            .Select(p => new PedidoDto
-            {
-                codigoPedido = p.codigoPedido,
-                fechaPedido = p.fechaPedido,
-                horaPedido = p.horaPedido,
-                documentoCliente = p.documentoCliente,
-                estadoPedido = p.estadoPedido,
-                detallesP = p.detallesPedidos.Select(i => new Models.DTO_s.pedidoDetalleDto
+                .Include(p => p.detallesPedidos)
+                .Where(p => p.codigoPedido == id)
+                .Select(p => new PedidoDto
                 {
-                    codigoProducto = i.codigoProducto,
-                    cantidadProducto = i.cantidadProducto,
-                    valorProducto = i.valorProducto
-                }).ToList()
-            })
-            .FirstOrDefaultAsync();
-
-             if (pedido == null)
-             {
-                return NotFound();
-             }
-
-             return Ok(pedido);
-        }
-
-        // PUT: api/PedidosInfo/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{codigoPedido}")]
-        public async Task<IActionResult> Putpedido(int codigoPedido, [FromBody] PedidoDto dto)
-        {
-            if (codigoPedido != dto.codigoPedido)
-            {
-                return BadRequest();
-            }
-
-            var pedido = await _context.pedidos
-                .Include(p => p.detallesPedidos) // 👈 Incluimos los detalles
-                .FirstOrDefaultAsync(p => p.codigoPedido == codigoPedido);
+                    codigoPedido = p.codigoPedido,
+                    fechaPedido = p.fechaPedido,
+                    horaPedido = p.horaPedido,
+                    documentoCliente = p.documentoCliente,
+                    estadoPedido = p.estadoPedido,
+                    valorPedido = p.valorPedido,
+                    detallesP = p.detallesPedidos.Select(d => new pedidoDetalleDto
+                    {
+                        codigoProducto = d.codigoProducto,
+                        cantidadProducto = d.cantidadProducto,
+                        valorProducto = d.valorProducto,
+                        totalPagoProducto = d.totalPagoProducto
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             if (pedido == null)
-            {
                 return NotFound();
-            }
 
-            // ✅ Actualizar campos principales
-            pedido.estadoPedido = dto.estadoPedido;
-            pedido.valorPedido = dto.valorPedido;
-            pedido.documentoCliente = dto.documentoCliente;
-            pedido.fechaPedido = dto.fechaPedido;
-            pedido.horaPedido = dto.horaPedido;
-
-            // ✅ Si necesitas actualizar detalles
-            if (dto.detallesP != null && dto.detallesP.Any())
-            {
-                // Borro los detalles anteriores
-                pedido.detallesPedidos.Clear();
-
-                // Agrego los nuevos
-                foreach (var detalleDto in dto.detallesP)
-                {
-                    pedido.detallesPedidos.Add(new detallesPedido
-                    {
-                        codigoProducto = detalleDto.codigoProducto,
-                        cantidadProducto = detalleDto.cantidadProducto,
-                        valorProducto = detalleDto.valorProducto,
-                        totalPagoProducto = detalleDto.totalPagoProducto
-                    });
-                }
-            }
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!pedidoExists(codigoPedido))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(pedido);
         }
 
-
-        // POST: api/PedidosInfo
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // ✅ POST: api/PedidosInfo
         [HttpPost]
-        public async Task<ActionResult<pedido>> Postpedido([FromBody] PedidoDto dto)
+        public async Task<ActionResult<PedidoDto>> PostPedido([FromBody] pedidoCreateDto dto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            var order = new pedido
+            var pedido = new pedido
             {
-                fechaPedido = dto.fechaPedido,
-                horaPedido = dto.horaPedido,
+                fechaPedido = DateOnly.FromDateTime(DateTime.Now),
+                horaPedido = TimeOnly.FromDateTime(DateTime.Now),
                 documentoCliente = dto.documentoCliente,
                 estadoPedido = dto.estadoPedido,
-                detallesPedidos = dto.detallesP.Select(i => new Proyecto_REMI_WebApi.Models.detallesPedido
+                detallesPedidos = new List<detallesPedido>()
+            };
+
+            // 🔄 Crear detalles con cálculo
+            foreach (var d in dto.detallesP)
+            {
+                var valorProducto = await _context.productos
+                    .Where(p => p.codigoProducto == d.codigoProducto)
+                    .Select(p => p.precioProducto)
+                    .FirstOrDefaultAsync();
+
+                // Fórmula: (valorProducto / 12) * cantidadProducto
+                var bruto = (valorProducto / 12m) * d.cantidadProducto;
+                var totalPago = Redondear(bruto, 50); // 🔄 redondeo a múltiplo de 50
+
+                var detalle = new detallesPedido
                 {
-                    codigoProducto = i.codigoProducto,
-                    cantidadProducto = i.cantidadProducto
+                    codigoProducto = d.codigoProducto,
+                    cantidadProducto = d.cantidadProducto,
+                    valorProducto = valorProducto,
+                    totalPagoProducto = totalPago
+                };
+
+                pedido.detallesPedidos.Add(detalle);
+            }
+
+            // 🔄 Calcular total pedido
+            pedido.valorPedido = pedido.detallesPedidos.Sum(dp => dp.totalPagoProducto);
+
+            _context.pedidos.Add(pedido);
+            await _context.SaveChangesAsync();
+
+            var result = new PedidoDto
+            {
+                codigoPedido = pedido.codigoPedido,
+                fechaPedido = pedido.fechaPedido,
+                horaPedido = pedido.horaPedido,
+                documentoCliente = pedido.documentoCliente,
+                estadoPedido = pedido.estadoPedido,
+                valorPedido = pedido.valorPedido,
+                detallesP = pedido.detallesPedidos.Select(d => new pedidoDetalleDto
+                {
+                    codigoProducto = d.codigoProducto,
+                    cantidadProducto = d.cantidadProducto,
+                    valorProducto = d.valorProducto,
+                    totalPagoProducto = d.totalPagoProducto
                 }).ToList()
             };
 
-            _context.pedidos.Add(order);
-            await _context.SaveChangesAsync();
-
-            // 👇 Recargar el pedido completo después de que el trigger actualizó valores
-            await _context.Entry(order).ReloadAsync();
-            await _context.Entry(order).Collection(p => p.detallesPedidos).LoadAsync();
-
-            var result = new Proyecto_REMI_WebApi.Models.DTO_s.totalPedidoDto
-            {
-                codigoPedido = order.codigoPedido,
-                fechaPedido = order.fechaPedido,
-                documentoCliente = order.documentoCliente,
-                valorPedido = order.valorPedido,  // 👈 ahora debería estar con valor del trigger
-                detallesPe = order.detallesPedidos.Select(i => new Proyecto_REMI_WebApi.Models.DTO_s.pedidoDetalleDto
-                {
-                    codigoProducto = i.codigoProducto,
-                    cantidadProducto = i.cantidadProducto,
-                    valorProducto = i.valorProducto,
-                    totalPagoProducto = i.totalPagoProducto
-                }).ToList(),
-            };
-
-            return CreatedAtAction(nameof(Getpedidos), new { order.codigoPedido }, result);
+            return CreatedAtAction(nameof(GetPedido), new { id = pedido.codigoPedido }, result);
         }
 
-        // DELETE: api/PedidosInfo/5
-        [HttpDelete("{codigoPedido}")]
-        public async Task<IActionResult> Deletepedido(int codigoPedido)
+        // ✅ PUT: api/PedidosInfo/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutPedido(int id, pedidoCreateDto dto)
         {
             var pedido = await _context.pedidos
-            .Include(p => p.detallesPedidos)
-            .FirstOrDefaultAsync(p => p.codigoPedido == codigoPedido);
+                .Include(p => p.detallesPedidos)
+                .FirstOrDefaultAsync(p => p.codigoPedido == id);
 
             if (pedido == null)
                 return NotFound();
 
-            // eliminar los detalles primero
+            // 🔄 Actualizar cabecera
+            pedido.documentoCliente = dto.documentoCliente;
+            pedido.estadoPedido = dto.estadoPedido;
+
+            // 🔄 Reemplazar detalles
             _context.detallesPedidos.RemoveRange(pedido.detallesPedidos);
+            pedido.detallesPedidos = new List<detallesPedido>();
 
-            // luego el pedido
+            foreach (var d in dto.detallesP)
+            {
+                var valorProducto = await _context.productos
+                    .Where(p => p.codigoProducto == d.codigoProducto)
+                    .Select(p => p.precioProducto)
+                    .FirstOrDefaultAsync();
+
+                var bruto = (valorProducto / 12m) * d.cantidadProducto;
+                var totalPago = Redondear(bruto, 50);
+
+                var detalle = new detallesPedido
+                {
+                    codigoProducto = d.codigoProducto,
+                    cantidadProducto = d.cantidadProducto,
+                    valorProducto = valorProducto,
+                    totalPagoProducto = totalPago
+                };
+
+                pedido.detallesPedidos.Add(detalle);
+            }
+
+            // 🔄 Recalcular total
+            pedido.valorPedido = pedido.detallesPedidos.Sum(dp => dp.totalPagoProducto);
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // ✅ DELETE: api/PedidosInfo/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePedido(int id)
+        {
+            var pedido = await _context.pedidos
+                .Include(p => p.detallesPedidos)
+                .FirstOrDefaultAsync(p => p.codigoPedido == id);
+
+            if (pedido == null)
+                return NotFound();
+
+            _context.detallesPedidos.RemoveRange(pedido.detallesPedidos);
             _context.pedidos.Remove(pedido);
-
             await _context.SaveChangesAsync();
 
             return NoContent();
-
         }
 
         private bool pedidoExists(int codigoPedido)

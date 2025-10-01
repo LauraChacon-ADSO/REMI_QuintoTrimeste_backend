@@ -3,14 +3,22 @@
     public class ventaReciboDto
     {
         public int codigoReciboVenta { get; set; }
+        public DateOnly fechaReciboVenta { get; set; }
+        public TimeOnly horaReciboVenta { get; set; }
 
-        public DateOnly fechaRecibo { get; set; }
-        public TimeOnly horaRecibo { get; set; }
+        // Relación con pedido
+        public int codigoPedido { get; set; }
+        public string documentoCliente { get; set; } = null!;
+        public string estadoPedido { get; set; } = null!;
 
-        public double totalRecibo { get; set; }
+        public List<pedidoDetalleDto> detalles { get; set; } = new();
 
-        // 🔽 El pedido asociado a este recibo
-        public PedidoDto Pedido { get; set; } = null!;
-        public List<pagoFormaDto> formasPago { get; set; } = new();
+        public decimal totalVenta { get; set; }
+
+        public decimal valorPago { get; set; }
+
+        public decimal cambio { get; set; }
+
+        public decimal saldoPendiente { get; set; }
     }
 }

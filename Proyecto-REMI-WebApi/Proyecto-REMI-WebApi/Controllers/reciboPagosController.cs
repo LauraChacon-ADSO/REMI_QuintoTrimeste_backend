@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Models;
+using Proyecto_REMI_WebApi.Models.DTO_s;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Proyecto_REMI_WebApi.Controllers
 {
@@ -23,96 +24,95 @@ namespace Proyecto_REMI_WebApi.Controllers
 
         // GET: api/reciboPagos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<reciboPago>>> GetreciboPagos()
+        public async Task<ActionResult<IEnumerable<pagoReciboDto>>> GetReciboPagos()
         {
-            return await _context.reciboPagos.ToListAsync();
+            var pagos = await _context.reciboPagos
+                .Include(rp => rp.codigoFormaPagoNavigation)
+                .Select(rp => new pagoReciboDto
+                {
+                    codigoReciboVenta = rp.codigoReciboVenta,
+                    codigoFormaPago = rp.codigoFormaPago,
+                    nombreFormaPago = rp.codigoFormaPagoNavigation.nombreFormaPago,
+                    valorPago = rp.valorPago
+                })
+                .ToListAsync();
+
+            return Ok(pagos);
         }
 
-        // GET: api/reciboPagos/5
+        // GET: api/reciboPago/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<reciboPago>> GetreciboPago(int id)
+        public async Task<ActionResult<pagoReciboDto>> GetReciboPago(int id)
         {
-            var reciboPago = await _context.reciboPagos.FindAsync(id);
+            var pago = await _context.reciboPagos
+                .Include(rp => rp.codigoFormaPagoNavigation)
+                .Where(rp => rp.codigoReciboVenta == id)
+                .Select(rp => new pagoReciboDto
+                {
+                    codigoReciboVenta = rp.codigoReciboVenta,
+                    codigoFormaPago = rp.codigoFormaPago,
+                    nombreFormaPago = rp.codigoFormaPagoNavigation.nombreFormaPago,
+                    valorPago = rp.valorPago
+                })
+                .FirstOrDefaultAsync();
 
-            if (reciboPago == null)
-            {
-                return NotFound();
-            }
-
-            return reciboPago;
+            if (pago == null) return NotFound();
+            return Ok(pago);
         }
 
-        // PUT: api/reciboPagos/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutreciboPago(int id, reciboPago reciboPago)
-        {
-            if (id != reciboPago.codigoReciboVenta)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(reciboPago).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!reciboPagoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/reciboPagos
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/reciboPago
         [HttpPost]
-        public async Task<ActionResult<reciboPago>> PostreciboPago(reciboPago reciboPago)
+        public async Task<ActionResult<crearReciboPagoDto>> PostReciboPago([FromBody] crearReciboPagoDto dto)
         {
-            _context.reciboPagos.Add(reciboPago);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (reciboPagoExists(reciboPago.codigoReciboVenta))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var recibo = await _context.reciboVenta.FindAsync(dto.codigoReciboVenta);
+            if (recibo == null) return NotFound("Recibo no encontrado");
 
-            return CreatedAtAction("GetreciboPago", new { id = reciboPago.codigoReciboVenta }, reciboPago);
+            var reciboPago = new reciboPago
+            {
+                codigoReciboVenta = dto.codigoReciboVenta,
+                codigoFormaPago = dto.codigoFormaPago,
+                valorPago = dto.valorPago
+            };
+
+            _context.reciboPagos.Add(reciboPago);
+
+            recibo.saldoPendiente -= dto.valorPago;
+            if (recibo.saldoPendiente < 0) recibo.saldoPendiente = 0;
+
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetReciboPago), new { id = reciboPago.codigoReciboVenta }, dto);
         }
 
-        // DELETE: api/reciboPagos/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletereciboPago(int id)
+        // PUT: api/reciboPago/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutReciboPago(int id, [FromBody] crearReciboPagoDto dto)
         {
-            var reciboPago = await _context.reciboPagos.FindAsync(id);
-            if (reciboPago == null)
-            {
-                return NotFound();
-            }
+            var pago = await _context.reciboPagos.FindAsync(id);
+            if (pago == null) return NotFound();
 
-            _context.reciboPagos.Remove(reciboPago);
+            pago.codigoFormaPago = dto.codigoFormaPago;
+            pago.valorPago = dto.valorPago;
+
+            _context.Entry(pago).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
+        // DELETE: api/reciboPago/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteReciboPago(int id)
+        {
+            var pago = await _context.reciboPagos.FindAsync(id);
+            if (pago == null) return NotFound();
+
+            _context.reciboPagos.Remove(pago);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         private bool reciboPagoExists(int id)
         {

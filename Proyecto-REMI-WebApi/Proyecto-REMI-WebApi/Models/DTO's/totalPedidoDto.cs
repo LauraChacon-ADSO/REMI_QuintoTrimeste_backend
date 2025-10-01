@@ -7,6 +7,6 @@
         public DateOnly fechaPedido { get; set; }
         public string documentoCliente { get; set; } = null!;
         public List<pedidoDetalleDto> detallesPe { get; set; } = new();
-        public double valorPedido { get; set; }
+        public decimal valorPedido { get; set; }
     }
 }

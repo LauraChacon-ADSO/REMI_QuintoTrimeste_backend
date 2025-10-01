@@ -11,33 +11,33 @@ namespace Proyecto_REMI_WebApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<decimal>(
+                name: "totalVenta",
+                table: "reciboVenta",
+                type: "decimal(18,0)",
+                nullable: false,
+                oldClrType: typeof(double),
+                oldType: "float");
+
+            migrationBuilder.AlterColumn<decimal>(
+                name: "valorPago",
+                table: "reciboPagos",
+                type: "decimal(18,0)",
+                nullable: false,
+                oldClrType: typeof(double),
+                oldType: "float");
+
+            migrationBuilder.AlterColumn<decimal>(
+                name: "precioProducto",
+                table: "producto",
+                type: "decimal(18,0)",
+                nullable: false,
+                oldClrType: typeof(double),
+                oldType: "float");
+
+            migrationBuilder.AlterColumn<decimal>(
                 name: "valorPedido",
                 table: "pedidos",
-                type: "decimal(18,2)",
-                nullable: false,
-                oldClrType: typeof(double),
-                oldType: "float");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "valorProducto",
-                table: "detallesPedido",
-                type: "decimal(18,2)",
-                nullable: false,
-                oldClrType: typeof(double),
-                oldType: "float");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "totalPagoProducto",
-                table: "detallesPedido",
-                type: "decimal(18,2)",
-                nullable: false,
-                oldClrType: typeof(double),
-                oldType: "float");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "cantidadProducto",
-                table: "detallesPedido",
-                type: "int",
+                type: "decimal(18,0)",
                 nullable: false,
                 oldClrType: typeof(double),
                 oldType: "float");
@@ -47,36 +47,36 @@ namespace Proyecto_REMI_WebApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<double>(
+                name: "totalVenta",
+                table: "reciboVenta",
+                type: "float",
+                nullable: false,
+                oldClrType: typeof(decimal),
+                oldType: "decimal(18,0)");
+
+            migrationBuilder.AlterColumn<double>(
+                name: "valorPago",
+                table: "reciboPagos",
+                type: "float",
+                nullable: false,
+                oldClrType: typeof(decimal),
+                oldType: "decimal(18,0)");
+
+            migrationBuilder.AlterColumn<double>(
+                name: "precioProducto",
+                table: "producto",
+                type: "float",
+                nullable: false,
+                oldClrType: typeof(decimal),
+                oldType: "decimal(18,0)");
+
+            migrationBuilder.AlterColumn<double>(
                 name: "valorPedido",
                 table: "pedidos",
                 type: "float",
                 nullable: false,
                 oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
-
-            migrationBuilder.AlterColumn<double>(
-                name: "valorProducto",
-                table: "detallesPedido",
-                type: "float",
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
-
-            migrationBuilder.AlterColumn<double>(
-                name: "totalPagoProducto",
-                table: "detallesPedido",
-                type: "float",
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
-
-            migrationBuilder.AlterColumn<double>(
-                name: "cantidadProducto",
-                table: "detallesPedido",
-                type: "float",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "int");
+                oldType: "decimal(18,0)");
         }
     }
 }
