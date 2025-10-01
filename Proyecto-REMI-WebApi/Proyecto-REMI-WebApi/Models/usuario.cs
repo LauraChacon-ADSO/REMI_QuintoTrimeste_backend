@@ -9,6 +9,9 @@ namespace Proyecto_REMI_WebApi.Models;
 [Table("usuario")]
 public partial class usuario
 {
+    internal string ResetToken;
+    internal DateTime? ResetTokenExpiry;
+
     [Key]
     [StringLength(20)]
     [Unicode(false)]
@@ -30,7 +33,7 @@ public partial class usuario
     [Unicode(false)]
     public string? correoUsuario { get; set; }
 
-    [StringLength(45)]
+    [StringLength(200)]
     [Unicode(false)]
     public string password { get; set; } = null!;
 
@@ -39,4 +42,5 @@ public partial class usuario
     [ForeignKey("codigoNivel")]
     [InverseProperty("usuarios")]
     public virtual niveles codigoNivelNavigation { get; set; } = null!;
+   
 }
