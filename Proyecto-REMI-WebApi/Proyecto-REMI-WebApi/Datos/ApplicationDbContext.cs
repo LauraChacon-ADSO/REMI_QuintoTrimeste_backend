@@ -59,6 +59,13 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<pedido>()
+        .ToTable(tb => tb.UseSqlOutputClause(false));
+
+        // Si también tienes trigger en detallesPedido
+        modelBuilder.Entity<detallesPedido>()
+            .ToTable(tb => tb.UseSqlOutputClause(false));
+
         modelBuilder.Entity<categoria>(entity =>
         {
             entity.HasKey(e => e.codigoCategorias).HasName("PK__categori__612FD8B17F0BC168");
