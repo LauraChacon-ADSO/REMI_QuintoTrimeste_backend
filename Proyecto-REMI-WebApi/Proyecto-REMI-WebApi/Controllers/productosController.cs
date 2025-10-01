@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Models;
+using Proyecto_REMI_WebApi.Models.DTO_s;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Proyecto_REMI_WebApi.Controllers
 {
@@ -21,14 +22,15 @@ namespace Proyecto_REMI_WebApi.Controllers
             _context = context;
         }
 
-        // GET: api/productos
+        // GET: api/productoes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<producto>>> Getproductos()
         {
-            return await _context.productos.ToListAsync();
+            var productos = await _context.productos.ToListAsync();
+            return Ok(productos);
         }
 
-        // GET: api/productos/5
+        // GET: api/productoes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<producto>> Getproducto(int id)
         {
@@ -42,67 +44,135 @@ namespace Proyecto_REMI_WebApi.Controllers
             return producto;
         }
 
-        // PUT: api/productos/5
+
+        [HttpGet("subcategoria/{subCategoriaId}")]
+        public async Task<ActionResult<IEnumerable<producto>>> GetProductosBySubCategoria(int subCategoriaId)
+        {
+            var productos = await _context.productos
+                .Where(p => p.codigoSubCategorias == subCategoriaId)
+                .ToListAsync();
+
+            return Ok(productos ?? new List<producto>());
+        }
+
+
+        [HttpGet("buscar/{nombre?}")]
+        public async Task<ActionResult<IEnumerable<producto>>> Buscar(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                return Ok(await _context.productos.ToListAsync());
+            }
+
+            nombre = nombre.Trim().ToLower();
+
+            var productos = await _context.productos
+                .Where(p => p.nombreProducto.ToLower().Contains(nombre))
+                .ToListAsync();
+
+            return Ok(productos);
+        }
+
+
+        // PUT: api/productoes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> Putproducto(int id, producto producto)
+        public async Task<IActionResult> Putproducto(int id, EditarProductosDto editarproductosDto)
         {
-            if (id != producto.codigoProducto)
-            {
-                return BadRequest();
-            }
+            var producto = await _context.productos.FindAsync(id);
+            if (producto == null) return NotFound();
 
-            _context.Entry(producto).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!productoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            producto.nombreProducto = editarproductosDto.nombreProducto;
+            producto.marcaProducto = editarproductosDto.marcaProducto;
+            producto.precioProducto=editarproductosDto.precioProducto;
 
+            await _context.SaveChangesAsync();
             return NoContent();
+
         }
 
-        // POST: api/productos
+        // POST: api/productoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<producto>> Postproducto(producto producto)
+        public async Task<ActionResult<producto>> Postproducto(CrearProductoDto dto)
         {
-            _context.productos.Add(producto);
+
+            var nombreExistente = await _context.productos
+                .AnyAsync(p => p.nombreProducto == dto.nombreProducto);
+
+            if (nombreExistente)
+            {
+                return BadRequest("El nombre del producto ya existe");
+            }
+
+
+            var subcategoria = await _context.subCategorias
+                .FirstOrDefaultAsync(sc => sc.codigoSubCategorias == dto.CodigoSubCategoria);
+
+            if (subcategoria == null)
+            {
+                return BadRequest("La subcategoría no existe. No se puede crear el producto.");
+            }
+
+            var EntradaP = new producto
+            {
+                nombreProducto = dto.nombreProducto,
+                entradaProducto = dto.entradaProducto,
+                marcaProducto = dto.marcaProducto,
+                precioProducto = dto.precioProducto,
+                codigoSubCategorias = dto.CodigoSubCategoria,
+                documentoProveedor = dto.documentoProveedor
+            };
+
+            _context.productos.Add(EntradaP);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Getproducto", new { id = producto.codigoProducto }, producto);
+
+            var stock = new stock
+            {
+                codigoProducto = EntradaP.codigoProducto,
+                cantidadActual = 0,
+                stockMin = 5,
+                stockMax = 50,
+                estadoStock = 1
+            };
+
+            _context.stocks.Add(stock);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("Getproducto", new { id = EntradaP.codigoProducto }, EntradaP);
+
         }
 
-        // DELETE: api/productos/5
+
+        // DELETE: api/productoes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Deleteproducto(int id)
         {
+
             var producto = await _context.productos.FindAsync(id);
             if (producto == null)
             {
                 return NotFound();
             }
 
+
             _context.productos.Remove(producto);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+
+                Console.WriteLine(ex.InnerException?.Message);
+                return BadRequest("No se pudo eliminar el producto. Revisa las relaciones en la base de datos.");
+            }
 
             return NoContent();
-        }
 
-        private bool productoExists(int id)
-        {
-            return _context.productos.Any(e => e.codigoProducto == id);
         }
     }
 }
