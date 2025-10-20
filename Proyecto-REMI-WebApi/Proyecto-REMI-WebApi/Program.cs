@@ -3,14 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using Microsoft.Extensions.Options;
 using Proyecto_REMI_WebApi.Datos;
 using Proyecto_REMI_WebApi.Services;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuración de CORS
 builder.Services.ConfigureCors();
 
 // DATABASE
@@ -22,8 +21,6 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-    opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
 })
 .AddJwtBearer(options =>
 {
@@ -40,25 +37,24 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
+// POLÍTICAS DE AUTORIZACIÓN
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("VendedorOnly", policy => policy.RequireRole("Vendedor"));
 });
 
-
+// CONFIGURAR CONTROLADORES Y JSON
 builder.Services.AddControllers().AddJsonOptions(opt =>
 {
-    opt.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     opt.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-    opt.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
 
-
+// INYECTAR SERVICIOS
 builder.Services.AddScoped<JwtHelper>();
 
-
+// SWAGGER
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -68,7 +64,7 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    // Configuración para JWT
+    // Configuración para JWT en Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -112,3 +108,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
+

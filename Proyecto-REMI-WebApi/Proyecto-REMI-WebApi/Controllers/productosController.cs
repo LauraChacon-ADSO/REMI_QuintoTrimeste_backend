@@ -85,7 +85,7 @@ namespace Proyecto_REMI_WebApi.Controllers
 
             producto.nombreProducto = editarproductosDto.nombreProducto;
             producto.marcaProducto = editarproductosDto.marcaProducto;
-            producto.precioProducto=editarproductosDto.precioProducto;
+            producto.precioProducto= (decimal)editarproductosDto.precioProducto;
 
             await _context.SaveChangesAsync();
             return NoContent();
@@ -120,7 +120,7 @@ namespace Proyecto_REMI_WebApi.Controllers
                 nombreProducto = dto.nombreProducto,
                 entradaProducto = dto.entradaProducto,
                 marcaProducto = dto.marcaProducto,
-                precioProducto = dto.precioProducto,
+                precioProducto = (decimal)dto.precioProducto,
                 codigoSubCategorias = dto.CodigoSubCategoria,
                 documentoProveedor = dto.documentoProveedor
             };

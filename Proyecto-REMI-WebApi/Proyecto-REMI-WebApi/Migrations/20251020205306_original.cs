@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Proyecto_REMI_WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class original : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -108,7 +108,7 @@ namespace Proyecto_REMI_WebApi.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     fechaPedido = table.Column<DateOnly>(type: "date", nullable: false),
                     horaPedido = table.Column<TimeOnly>(type: "time", nullable: false),
-                    valorPedido = table.Column<double>(type: "float", nullable: false),
+                    valorPedido = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     documentoCliente = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
                     estadoPedido = table.Column<string>(type: "varchar(10)", unicode: false, maxLength: 10, nullable: false)
                 },
@@ -131,7 +131,7 @@ namespace Proyecto_REMI_WebApi.Migrations
                     nombreUsuario = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false),
                     apellidoUsuario = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false),
                     correoUsuario = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: true),
-                    password = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false),
+                    password = table.Column<string>(type: "varchar(200)", unicode: false, maxLength: 200, nullable: false),
                     codigoNivel = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -174,7 +174,7 @@ namespace Proyecto_REMI_WebApi.Migrations
                     entradaProducto = table.Column<int>(type: "int", nullable: true),
                     salidaProducto = table.Column<int>(type: "int", nullable: true),
                     marcaProducto = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: true),
-                    precioProducto = table.Column<double>(type: "float", nullable: true),
+                    precioProducto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     codigoSubCategorias = table.Column<int>(type: "int", nullable: false),
                     documentoProveedor = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false)
                 },
@@ -201,9 +201,9 @@ namespace Proyecto_REMI_WebApi.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     fechaReciboVenta = table.Column<DateOnly>(type: "date", nullable: false),
                     horaReciboVenta = table.Column<TimeOnly>(type: "time", nullable: false),
-                    valorVenta = table.Column<double>(type: "float", nullable: false),
-                    totalVenta = table.Column<double>(type: "float", nullable: false),
-                    codigoPedido = table.Column<int>(type: "int", nullable: false)
+                    totalVenta = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    codigoPedido = table.Column<int>(type: "int", nullable: false),
+                    saldoPendiente = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -221,9 +221,9 @@ namespace Proyecto_REMI_WebApi.Migrations
                 {
                     codigoPedido = table.Column<int>(type: "int", nullable: false),
                     codigoProducto = table.Column<int>(type: "int", nullable: false),
-                    cantidadProducto = table.Column<double>(type: "float", nullable: false),
-                    valorProducto = table.Column<double>(type: "float", nullable: false),
-                    totalPagoProducto = table.Column<double>(type: "float", nullable: false)
+                    cantidadProducto = table.Column<int>(type: "int", nullable: false),
+                    valorProducto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    totalPagoProducto = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -293,9 +293,9 @@ namespace Proyecto_REMI_WebApi.Migrations
                 {
                     codigoReciboVenta = table.Column<int>(type: "int", nullable: false),
                     codigoProducto = table.Column<int>(type: "int", nullable: false),
-                    cantidadProductoRecibo = table.Column<double>(type: "float", nullable: false),
-                    valorUnitarioRecibo = table.Column<double>(type: "float", nullable: false),
-                    totalProductoRecibo = table.Column<double>(type: "float", nullable: false)
+                    cantidadProductoRecibo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    valorUnitarioRecibo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    totalProductoRecibo = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -318,7 +318,7 @@ namespace Proyecto_REMI_WebApi.Migrations
                 {
                     codigoReciboVenta = table.Column<int>(type: "int", nullable: false),
                     codigoFormaPago = table.Column<int>(type: "int", nullable: false),
-                    valorPago = table.Column<double>(type: "float", nullable: false)
+                    valorPago = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -390,6 +390,25 @@ namespace Proyecto_REMI_WebApi.Migrations
                         principalTable: "stock",
                         principalColumn: "codigoStock");
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IndexNombrecliente",
+                table: "cliente",
+                columns: new[] { "nombreCliente", "apellidoCliente" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_cliente_correoCliente",
+                table: "cliente",
+                column: "correoCliente",
+                unique: true,
+                filter: "[correoCliente] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_cliente_telefonoCliente",
+                table: "cliente",
+                column: "telefonoCliente",
+                unique: true,
+                filter: "[telefonoCliente] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_detallesPedido_codigoProducto",
