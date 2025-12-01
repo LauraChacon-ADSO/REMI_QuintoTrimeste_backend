@@ -86,7 +86,7 @@ namespace Proyecto_REMI_WebApi.Controllers
                 telefonoProveedor = crearProveedorDto.telefonoProveedor,
             };
 
-            _context.proveedores.AddAsync(nuevoProveedor);
+            await _context.proveedores.AddAsync(nuevoProveedor);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("Getproveedore", new { id = nuevoProveedor.documentoProveedor }, nuevoProveedor);

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AnalysisConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
-  <SonarConfigDir>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf</SonarConfigDir>
-  <SonarOutputDir>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\out</SonarOutputDir>
-  <SonarBinDir>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\bin</SonarBinDir>
-  <SonarScannerWorkingDirectory>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi</SonarScannerWorkingDirectory>
+  <SonarConfigDir>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf</SonarConfigDir>
+  <SonarOutputDir>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\out</SonarOutputDir>
+  <SonarBinDir>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\bin</SonarBinDir>
+  <SonarScannerWorkingDirectory>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi</SonarScannerWorkingDirectory>
   <JavaExePath>C:\Users\rosaj\.sonar\cache\11a61a94d383e755b08b4e5890a13d148bc9f95b7149cbbeec62efb8c75a4a67\OpenJDK17U-jre_x64_windows_hotspot_17.0.13_11.zip_extracted\jdk-17.0.13+11-jre/bin/java.exe</JavaExePath>
   <EngineJarPath>C:\Users\rosaj\.sonar\cache\5370664af11ed9502c5e9da2fca3e7b2465b6b01c7248962ef899d0551837b42\sonar-scanner-engine-shaded-25.10.0.114319-all.jar</EngineJarPath>
   <UseSonarScannerCli>false</UseSonarScannerCli>
@@ -12,13 +12,13 @@
   <HasBeginStepCommandLineTruststorePassword>false</HasBeginStepCommandLineTruststorePassword>
   <SonarQubeHostUrl>http://localhost:9000</SonarQubeHostUrl>
   <SonarQubeVersion>25.10.0.114319</SonarQubeVersion>
-  <SonarProjectKey>PruebaREMI</SonarProjectKey>
+  <SonarProjectKey>pruebasJulianaRemi</SonarProjectKey>
   <AdditionalConfig>
     <ConfigSetting Id="BuildUri" />
     <ConfigSetting Id="TfsUri" />
     <ConfigSetting Id="VsCoverageConverterToolPath" />
     <ConfigSetting Id="UnchangedFilesPath" />
-    <ConfigSetting Id="sonar.pullrequest.cache.basepath" Value="C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi" />
+    <ConfigSetting Id="sonar.pullrequest.cache.basepath" Value="C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi" />
     <ConfigSetting Id="settings.file.path" Value="C:\Users\rosaj\.dotnet\tools\.store\dotnet-sonarscanner\11.0.0\dotnet-sonarscanner\11.0.0\tools\netcoreapp3.1\any\SonarQube.Analysis.xml" />
   </AdditionalConfig>
   <ServerSettings>
@@ -147,8 +147,8 @@
     <Property Name="sonaranalyzer-vbnet.pluginKey">vbnet</Property>
     <Property Name="sonar.java.jvmframeworkconfig.activate">true</Property>
     <Property Name="sonar.updatecenter.url">https://downloads.sonarsource.com/sonarqube/update/update-center.properties</Property>
-    <Property Name="sonar.core.id">147B411E-AZrYP4UmKoNTqxECvS6j</Property>
-    <Property Name="sonar.core.startTime">01/12/2025 0:07:33</Property>
+    <Property Name="sonar.core.id">147B411E-AZnpVza2XwgBEeYJMDYV</Property>
+    <Property Name="sonar.core.startTime">01/12/2025 11:44:09</Property>
   </ServerSettings>
   <LocalSettings>
     <Property Name="sonar.host.url">http://localhost:9000</Property>
@@ -157,8 +157,8 @@
   <AnalyzersSettings>
     <AnalyzerSettings>
       <Language>cs</Language>
-      <RulesetPath>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-cs.ruleset</RulesetPath>
-      <DeactivatedRulesetPath>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-cs-none.ruleset</DeactivatedRulesetPath>
+      <RulesetPath>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-cs.ruleset</RulesetPath>
+      <DeactivatedRulesetPath>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-cs-none.ruleset</DeactivatedRulesetPath>
       <AnalyzerPlugins>
         <AnalyzerPlugin Key="csharp" Version="10.15.0.120848" StaticResourceName="SonarAnalyzer-csharp-10.15.0.120848.zip">
           <AssemblyPaths>
@@ -168,13 +168,13 @@
         </AnalyzerPlugin>
       </AnalyzerPlugins>
       <AdditionalFilePaths>
-        <Path>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\cs\SonarLint.xml</Path>
+        <Path>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\cs\SonarLint.xml</Path>
       </AdditionalFilePaths>
     </AnalyzerSettings>
     <AnalyzerSettings>
       <Language>vbnet</Language>
-      <RulesetPath>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-vbnet.ruleset</RulesetPath>
-      <DeactivatedRulesetPath>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-vbnet-none.ruleset</DeactivatedRulesetPath>
+      <RulesetPath>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-vbnet.ruleset</RulesetPath>
+      <DeactivatedRulesetPath>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\Sonar-vbnet-none.ruleset</DeactivatedRulesetPath>
       <AnalyzerPlugins>
         <AnalyzerPlugin Key="vbnet" Version="10.15.0.120848" StaticResourceName="SonarAnalyzer-vbnet-10.15.0.120848.zip">
           <AssemblyPaths>
@@ -184,7 +184,7 @@
         </AnalyzerPlugin>
       </AnalyzerPlugins>
       <AdditionalFilePaths>
-        <Path>C:\Users\rosaj\OneDrive\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\vbnet\SonarLint.xml</Path>
+        <Path>C:\Users\rosaj\OneDrive\Desktop\BackenProyectoRemiFinalGit\REMI_QuintoTrimeste_backend\Proyecto-REMI-WebApi\.sonarqube\conf\vbnet\SonarLint.xml</Path>
       </AdditionalFilePaths>
     </AnalyzerSettings>
   </AnalyzersSettings>
