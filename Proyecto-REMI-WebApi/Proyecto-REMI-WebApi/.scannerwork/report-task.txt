@@ -1,0 +1,6 @@
+projectKey=GrupoRemi
+serverUrl=http://localhost:9000
+serverVersion=25.10.0.114319
+dashboardUrl=http://localhost:9000/dashboard?id=GrupoRemi
+ceTaskId=0d4c696a-2295-4632-86d7-4813ef599b35
+ceTaskUrl=http://localhost:9000/api/ce/task?id=0d4c696a-2295-4632-86d7-4813ef599b35

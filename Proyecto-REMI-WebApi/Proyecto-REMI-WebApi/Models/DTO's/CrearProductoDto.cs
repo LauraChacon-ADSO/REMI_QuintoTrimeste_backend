@@ -7,7 +7,6 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
     {
         [StringLength(45)]
         [Unicode(false)]
-        public string nombreProducto { get; set; } = null!;
 
         public int? entradaProducto { get; set; }
 

@@ -8,7 +8,6 @@ namespace Proyecto_REMI_WebApi.Migrations
     /// <inheritdoc />
     public partial class original : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
