@@ -1,7 +1,7 @@
 ﻿C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\AuthController.cs
 C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\categoriasController.cs
 C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\clientesController.cs
-C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\detallesPedidosController.cs
+C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\DetallesPedidosController.cs
 C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\detallesRecibosController.cs
 C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\entradaProductosController.cs
 C:\Users\Laura Herrera\Desktop\REMI\Proyecto-REMI-WebApi\Proyecto-REMI-WebApi\Controllers\formaPagosController.cs
