@@ -113,10 +113,5 @@ namespace Proyecto_REMI_WebApi.Controllers
             return NoContent();
         }
 
-
-        private bool reciboPagoExists(int id)
-        {
-            return _context.reciboPagos.Any(e => e.codigoReciboVenta == id);
-        }
     }
 }

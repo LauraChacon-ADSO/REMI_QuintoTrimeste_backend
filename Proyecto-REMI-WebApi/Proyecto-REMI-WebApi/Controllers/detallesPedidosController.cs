@@ -12,11 +12,11 @@ namespace Proyecto_REMI_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class detallesPedidosController : ControllerBase
+    public class DetallesPedidosController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public detallesPedidosController(ApplicationDbContext context)
+        public DetallesPedidosController(ApplicationDbContext context)
         {
             _context = context;
         }
