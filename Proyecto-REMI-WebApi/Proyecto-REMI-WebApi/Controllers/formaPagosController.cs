@@ -36,7 +36,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             return Ok(formasPago);
         }
 
-        // ✅ GET: api/FormaPago/5
+        // GET: api/FormaPago/5
         [HttpGet("{id}")]
         public async Task<ActionResult<pagoFormaDto>> GetFormaPago(int id)
         {
@@ -52,7 +52,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             };
         }
 
-        // ✅ POST: api/FormaPago
+        // POST: api/FormaPago
         [HttpPost]
         public async Task<ActionResult<pagoFormaDto>> PostFormaPago([FromBody] pagoFormaDto dto)
         {
@@ -69,7 +69,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             return CreatedAtAction(nameof(GetFormaPago), new { id = dto.codigoFormaPago }, dto);
         }
 
-        // ✅ PUT: api/FormaPago/5
+        // PUT: api/FormaPago/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFormaPago(int id, [FromBody] pagoFormaDto dto)
         {
@@ -86,7 +86,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             return NoContent();
         }
 
-        // ✅ DELETE: api/FormaPago/5
+        // DELETE: api/FormaPago/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFormaPago(int id)
         {
@@ -100,10 +100,5 @@ namespace Proyecto_REMI_WebApi.Controllers
             return NoContent();
         }
 
-
-        private bool formaPagoExists(int id)
-        {
-            return _context.formaPagos.Any(e => e.codigoFormaPago == id);
-        }
     }
 }
