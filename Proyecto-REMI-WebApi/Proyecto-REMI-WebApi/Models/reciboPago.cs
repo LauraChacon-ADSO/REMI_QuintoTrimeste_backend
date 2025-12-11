@@ -15,7 +15,7 @@ public partial class reciboPago
     [Key]
     public int codigoFormaPago { get; set; }
 
-    public double valorPago { get; set; }
+    public decimal valorPago { get; set; }
 
     [ForeignKey("codigoFormaPago")]
     [InverseProperty("reciboPagos")]

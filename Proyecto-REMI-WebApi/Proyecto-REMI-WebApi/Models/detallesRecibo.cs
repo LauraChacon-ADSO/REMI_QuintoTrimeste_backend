@@ -16,11 +16,11 @@ public partial class detallesRecibo
     [Key]
     public int codigoProducto { get; set; }
 
-    public double cantidadProductoRecibo { get; set; }
+    public decimal cantidadProductoRecibo { get; set; }
 
-    public double valorUnitarioRecibo { get; set; }
+    public decimal valorUnitarioRecibo { get; set; }
 
-    public double totalProductoRecibo { get; set; }
+    public decimal totalProductoRecibo { get; set; }
 
     [ForeignKey("codigoProducto")]
     [InverseProperty("detallesRecibos")]

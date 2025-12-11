@@ -27,29 +27,20 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<entradaProducto> entradaProductos { get; set; }
 
     public virtual DbSet<formaPago> formaPagos { get; set; }
-
     public virtual DbSet<movimientosStock> movimientosStocks { get; set; }
-
     public virtual DbSet<niveles> niveles { get; set; }
 
     public virtual DbSet<pedido> pedidos { get; set; }
 
     public virtual DbSet<producto> productos { get; set; }
-
     public virtual DbSet<productoEntrada> productoEntrada { get; set; }
-
     public virtual DbSet<proveedores> proveedores { get; set; }
-
     public virtual DbSet<reciboPago> reciboPagos { get; set; }
 
     public virtual DbSet<reciboVenta> reciboVenta { get; set; }
-
     public virtual DbSet<salidaProducto> salidaProductos { get; set; }
-
     public virtual DbSet<stock> stocks { get; set; }
-
     public virtual DbSet<subCategoria> subCategorias { get; set; }
-
     public virtual DbSet<usuario> usuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -59,6 +50,13 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<pedido>()
+            .ToTable(tb => tb.UseSqlOutputClause(false));
+
+        // Si también tienes trigger en detallesPedido
+        modelBuilder.Entity<detallesPedido>()
+            .ToTable(tb => tb.UseSqlOutputClause(false));
+
         modelBuilder.Entity<categoria>(entity =>
         {
             entity.HasKey(e => e.codigoCategorias).HasName("PK__categori__612FD8B17F0BC168");
@@ -113,9 +111,11 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.codigoMovimientoStock).HasName("PK__movimien__0C6251D60FE04731");
 
-            entity.HasOne(d => d.codigoEntradaNavigation).WithMany(p => p.movimientosStocks).HasConstraintName("FK_movimientosStock_entradaProducto");
+            entity.HasOne(d => d.codigoEntradaNavigation).WithMany(p => p.movimientosStocks)
+                .HasConstraintName("FK_movimientosStock_entradaProducto");
 
-            entity.HasOne(d => d.codigoReciboVentaNavigation).WithMany(p => p.movimientosStocks).HasConstraintName("FK_movimientosStock_reciboVenta");
+            entity.HasOne(d => d.codigoReciboVentaNavigation).WithMany(p => p.movimientosStocks)
+                .HasConstraintName("FK_movimientosStock_reciboVenta");
 
             entity.HasOne(d => d.codigoStockNavigation).WithMany(p => p.movimientosStocks)
                 .OnDelete(DeleteBehavior.ClientSetNull)

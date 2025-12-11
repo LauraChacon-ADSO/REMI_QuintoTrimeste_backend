@@ -15,7 +15,7 @@ public partial class pedido
 
     public TimeOnly horaPedido { get; set; }
 
-    public double valorPedido { get; set; }
+    public decimal valorPedido { get; set; }
 
     [StringLength(20)]
     [Unicode(false)]

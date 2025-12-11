@@ -24,7 +24,7 @@ public partial class producto
     [Unicode(false)]
     public string? marcaProducto { get; set; }
 
-    public double? precioProducto { get; set; }
+    public decimal precioProducto { get; set; }
 
     public int codigoSubCategorias { get; set; }
 
