@@ -54,6 +54,8 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        // Este método queda vacío porque la configuración del DbContext
+        // se realiza en Program.cs mediante la inyección de dependencias.
 
     }
 
