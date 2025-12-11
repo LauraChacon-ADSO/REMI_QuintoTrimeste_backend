@@ -18,7 +18,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             _context = context;
         }
 
-        // Cambiar contraseña (usuario autenticado)
+        
         [HttpPost("cambiar")]
         [Authorize]
         public async Task<IActionResult> CambiarContraseña([FromBody] CambiarContraseñaDto dto)
@@ -38,7 +38,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             return Ok("Contraseña cambiada correctamente.");
         }
 
-        //Olvidé contraseña (solicitar token)
+        
         [HttpPost("olvido")]
         [AllowAnonymous]
         public async Task<IActionResult> OlvidoContraseña([FromBody] OlvidoContraseñaDto dto)
@@ -51,11 +51,11 @@ namespace Proyecto_REMI_WebApi.Controllers
             usuario.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
             await _context.SaveChangesAsync();
 
-            // En producción, enviar token por correo
+            
             return Ok(new { ResetToken = token });
         }
 
-        // Reseteamos la contraseña (usamos token temporal)
+        
         [HttpPost("reset")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetContraseña([FromBody] ResetContraseñaDto dto)

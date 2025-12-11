@@ -14,11 +14,13 @@ namespace Proyecto_REMI_WebApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
         private readonly JwtHelper _jwtHelper;
 
-        public AuthController(ApplicationDbContext context, JwtHelper jwtHelper)
+        public AuthController(ApplicationDbContext context, IConfiguration configuration, JwtHelper jwtHelper)
         {
             _context = context;
+            _configuration = configuration;
             _jwtHelper = jwtHelper;
         }
 
@@ -45,7 +47,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             });
         }
 
-        // REGISTER 
+        //REGISTER 
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
