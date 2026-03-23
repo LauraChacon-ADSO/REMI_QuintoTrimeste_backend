@@ -38,6 +38,8 @@ public partial class cliente
     [Unicode(false)]
     public string? telefonoCliente { get; set; }
 
+    public bool estadoCliente { get; set; } = true;
+
     [InverseProperty("documentoClienteNavigation")]
     public virtual ICollection<pedido> pedidos { get; set; } = new List<pedido>();
 }

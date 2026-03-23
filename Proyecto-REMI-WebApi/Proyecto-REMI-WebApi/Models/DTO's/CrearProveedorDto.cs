@@ -26,5 +26,7 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
         [Unicode(false)]
         public string? telefonoProveedor { get; set; }
 
+        public bool EstadoProveedor { get; set; } = true;
+
     }
 }

@@ -26,7 +26,9 @@ namespace Proyecto_REMI_WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<proveedores>>> Getproveedores()
         {
-            var proveedor = await _context.proveedores.ToListAsync();
+            var proveedor = await _context.proveedores
+            .Where(p => p.EstadoProveedor == true)
+            .ToListAsync();
             return Ok(proveedor);
         }
 
@@ -89,7 +91,7 @@ namespace Proyecto_REMI_WebApi.Controllers
             await _context.proveedores.AddAsync(nuevoProveedor);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Getproveedore", new { id = nuevoProveedor.documentoProveedor }, nuevoProveedor);
+            return CreatedAtAction("Getproveedores", new { id = nuevoProveedor.documentoProveedor }, nuevoProveedor);
         }
 
         // DELETE: api/proveedores/5
@@ -100,23 +102,20 @@ namespace Proyecto_REMI_WebApi.Controllers
                 var proveedore = await _context.proveedores
                     .Include(p => p.productos)
                     .FirstOrDefaultAsync(p => p.documentoProveedor == id);
-
                 if (proveedore == null)
                 {
                     return NotFound();
                 }
 
+                proveedore.EstadoProveedor = false;
 
-                if (proveedore.productos.Any())
-                {
-                    return BadRequest("No se puede eliminar el proveedor porque tiene productos asociados.");
-                }
+                _context.proveedores.Update(proveedore);
 
-                _context.proveedores.Remove(proveedore);
                 await _context.SaveChangesAsync();
 
-                return NoContent();
+                return Ok("Proveedor desactivado");
             }
         }
+        
     }
 }

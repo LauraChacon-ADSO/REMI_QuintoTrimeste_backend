@@ -35,18 +35,23 @@ namespace Proyecto_REMI_WebApi.Controllers
         public async Task<ActionResult<IEnumerable<PedidoDto>>> GetPedidos()
         {
             var pedidos = await _context.pedidos
+                .Include(p => p.documentoClienteNavigation)                 
                 .Include(p => p.detallesPedidos)
+                    .ThenInclude(d => d.codigoProductoNavigation)        
                 .Select(p => new PedidoDto
                 {
                     codigoPedido = p.codigoPedido,
                     fechaPedido = p.fechaPedido,
                     horaPedido = p.horaPedido,
                     documentoCliente = p.documentoCliente,
+                    nombreCliente = p.documentoClienteNavigation.nombreCliente,
+                    apellidoCliente = p.documentoClienteNavigation.apellidoCliente,
                     estadoPedido = p.estadoPedido,
                     valorPedido = p.valorPedido,
                     detallesP = p.detallesPedidos.Select(d => new pedidoDetalleDto
                     {
                         codigoProducto = d.codigoProducto,
+                        nombreProducto = d.codigoProductoNavigation.nombreProducto, 
                         cantidadProducto = d.cantidadProducto,
                         valorProducto = d.valorProducto,
                         totalPagoProducto = d.totalPagoProducto
@@ -70,6 +75,8 @@ namespace Proyecto_REMI_WebApi.Controllers
                     fechaPedido = p.fechaPedido,
                     horaPedido = p.horaPedido,
                     documentoCliente = p.documentoCliente,
+                    nombreCliente = p.documentoClienteNavigation.nombreCliente,
+                    apellidoCliente = p.documentoClienteNavigation.apellidoCliente,
                     estadoPedido = p.estadoPedido,
                     valorPedido = p.valorPedido,
                     detallesP = p.detallesPedidos.Select(d => new pedidoDetalleDto

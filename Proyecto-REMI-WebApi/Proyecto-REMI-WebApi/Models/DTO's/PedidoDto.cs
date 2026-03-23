@@ -16,6 +16,9 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
         [Unicode(false)]
         public string documentoCliente { get; set; } = null!;
 
+        public string nombreCliente { get; set; }
+        public string apellidoCliente { get; set; }
+
         [StringLength(10)]
         [Unicode(false)]
         public string estadoPedido { get; set; } = null!;

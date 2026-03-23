@@ -28,6 +28,7 @@ namespace Proyecto_REMI_WebApi.Controllers
         {
             var clientes = await _context.clientes
                 .Include(c => c.pedidos)
+                .Where(c => c.estadoCliente == true)
                 .ToListAsync();
 
             return Ok(clientes);
@@ -54,44 +55,54 @@ namespace Proyecto_REMI_WebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cliente = new cliente
-            {
-                documentoCliente = dto.documentoCliente,
-                tipoDocumentoCliente = dto.tipoDocumentoCliente,
-                nombreCliente = dto.nombreCliente,
-                apellidoCliente = dto.apellidoCliente,
-                correoCliente = dto.correoCliente,
-                telefonoCliente = dto.telefonoCliente
-            };
+            var clienteExistente = await _context.clientes
+                .FirstOrDefaultAsync(c => c.documentoCliente == dto.documentoCliente);
 
-            _context.clientes.Add(cliente);
-            try
+            if (clienteExistente == null)
             {
+                var cliente = new cliente
+                {
+                    documentoCliente = dto.documentoCliente,
+                    tipoDocumentoCliente = dto.tipoDocumentoCliente,
+                    nombreCliente = dto.nombreCliente,
+                    apellidoCliente = dto.apellidoCliente,
+                    correoCliente = dto.correoCliente,
+                    telefonoCliente = dto.telefonoCliente,
+                    estadoCliente = true
+                };
+
+                _context.clientes.Add(cliente);
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (ClienteExists(cliente.documentoCliente))
-                    return Conflict();
-                else
-                    throw;
+
+                return Ok(cliente);
             }
 
-            return CreatedAtAction(nameof(GetCliente), new { documentoCliente = cliente.documentoCliente }, cliente);
+            if (!clienteExistente.estadoCliente)
+            {
+                clienteExistente.estadoCliente = true;
+                clienteExistente.tipoDocumentoCliente = dto.tipoDocumentoCliente;
+                clienteExistente.nombreCliente = dto.nombreCliente;
+                clienteExistente.apellidoCliente = dto.apellidoCliente;
+                clienteExistente.correoCliente = dto.correoCliente;
+                clienteExistente.telefonoCliente = dto.telefonoCliente;
+
+                await _context.SaveChangesAsync();
+
+                return Ok("Cliente reactivado correctamente");
+            }
+
+            return Conflict("El cliente ya existe y está activo.");
         }
 
         // PUT: api/clientes/5
         [HttpPut("{documentoCliente}")]
         public async Task<IActionResult> PutCliente(string documentoCliente, [FromBody] clientesInfoDto dto)
         {
-            if (documentoCliente != dto.documentoCliente)
-                return BadRequest("El documento de cliente no coincide.");
 
             var cliente = await _context.clientes.FindAsync(documentoCliente);
             if (cliente == null)
                 return NotFound();
 
-            // Mapear DTO a entidad
             cliente.tipoDocumentoCliente = dto.tipoDocumentoCliente;
             cliente.nombreCliente = dto.nombreCliente;
             cliente.apellidoCliente = dto.apellidoCliente;
@@ -123,10 +134,10 @@ namespace Proyecto_REMI_WebApi.Controllers
             if (cliente == null)
                 return NotFound();
 
-            _context.clientes.Remove(cliente);
+            cliente.estadoCliente = false;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Cliente desactivado correctamente");
         }
 
         private bool ClienteExists(string documentoCliente)

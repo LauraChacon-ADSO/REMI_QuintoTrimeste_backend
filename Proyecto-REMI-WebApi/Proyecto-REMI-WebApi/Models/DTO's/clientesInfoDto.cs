@@ -32,5 +32,7 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
         [Unicode(false)]
         public string? telefonoCliente { get; set; }
         public List<pedidoDetalleDto> detallesP { get; set; } = new();
+
+        public bool estadoCliente { get; set; } = true;
     }
 }

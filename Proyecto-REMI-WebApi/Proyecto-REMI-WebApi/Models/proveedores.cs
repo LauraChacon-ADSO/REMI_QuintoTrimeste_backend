@@ -34,4 +34,5 @@ public partial class proveedores
 
     [InverseProperty("documentoProveedorNavigation")]
     public virtual ICollection<producto> productos { get; set; } = new List<producto>();
+    public bool EstadoProveedor { get; set; } = true;
 }

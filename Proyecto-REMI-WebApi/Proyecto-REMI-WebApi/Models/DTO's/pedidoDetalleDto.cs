@@ -3,6 +3,7 @@
     public class pedidoDetalleDto
     {
         public int codigoProducto { get; set; }
+        public string nombreProducto { get; set; }
         public int cantidadProducto { get; set; }
         public decimal valorProducto { get; set; }
         public decimal totalPagoProducto { get; set; }
