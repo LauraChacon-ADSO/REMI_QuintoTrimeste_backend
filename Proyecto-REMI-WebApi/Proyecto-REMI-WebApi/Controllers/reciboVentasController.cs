@@ -1,4 +1,5 @@
-﻿using Humanizer;
+﻿using Microsoft.AspNetCore.Authorization;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace Proyecto_REMI_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class reciboVentasController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

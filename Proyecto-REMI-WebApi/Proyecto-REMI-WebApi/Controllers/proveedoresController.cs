@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Proyecto_REMI_WebApi.Datos;
@@ -13,6 +14,7 @@ namespace Proyecto_REMI_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class proveedoresController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -70,28 +72,42 @@ namespace Proyecto_REMI_WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<proveedores>> Postproveedore(CrearProveedorDto crearProveedorDto)
         {
-            var dcProveedorE = await _context.proveedores
-               .AnyAsync(pv => pv.documentoProveedor == crearProveedorDto.documentoProveedor);
+            var proveedorExistente = await _context.proveedores
+                .FirstOrDefaultAsync(pv => pv.documentoProveedor == crearProveedorDto.documentoProveedor);
 
-            if (dcProveedorE)
-
+            if (proveedorExistente == null)
             {
-                return BadRequest("El numero de documento ya existe");
+                var nuevoProveedor = new proveedores
+                {
+                    documentoProveedor = crearProveedorDto.documentoProveedor,
+                    tipoDocumentoProveedor = crearProveedorDto.tipoDocumentoProveedor,
+                    nombreProveedor = crearProveedorDto.nombreProveedor,
+                    correoProveedor = crearProveedorDto.correoProveedor,
+                    telefonoProveedor = crearProveedorDto.telefonoProveedor,
+                    EstadoProveedor = true
+                };
+
+                await _context.proveedores.AddAsync(nuevoProveedor);
+                await _context.SaveChangesAsync();
+
+                return Ok(nuevoProveedor);
             }
 
-            var nuevoProveedor = new proveedores
+
+            if (!proveedorExistente.EstadoProveedor)
             {
-                documentoProveedor = crearProveedorDto.documentoProveedor,
-                tipoDocumentoProveedor = crearProveedorDto.tipoDocumentoProveedor,
-                nombreProveedor = crearProveedorDto.nombreProveedor,
-                correoProveedor = crearProveedorDto.correoProveedor,
-                telefonoProveedor = crearProveedorDto.telefonoProveedor,
-            };
+                proveedorExistente.EstadoProveedor = true;
+                proveedorExistente.tipoDocumentoProveedor = crearProveedorDto.tipoDocumentoProveedor;
+                proveedorExistente.nombreProveedor = crearProveedorDto.nombreProveedor;
+                proveedorExistente.correoProveedor = crearProveedorDto.correoProveedor;
+                proveedorExistente.telefonoProveedor = crearProveedorDto.telefonoProveedor;
 
-            await _context.proveedores.AddAsync(nuevoProveedor);
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Getproveedores", new { id = nuevoProveedor.documentoProveedor }, nuevoProveedor);
+                return Ok("Proveedor reactivado");
+            }
+
+            return BadRequest("El numero de documento ya existe");
         }
 
         // DELETE: api/proveedores/5

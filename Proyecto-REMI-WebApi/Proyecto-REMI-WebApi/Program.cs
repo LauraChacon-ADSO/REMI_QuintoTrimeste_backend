@@ -64,7 +64,6 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    // Configuración para JWT en Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -91,7 +90,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-//builder.WebHost.UseUrls("http://0.0.0.0:5059");
+builder.WebHost.UseUrls("http://0.0.0.0:5059");
 
 var app = builder.Build();
 
@@ -102,7 +101,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 app.UseRouting();
 app.UseAuthentication();

@@ -25,6 +25,7 @@ public partial class producto
     public string? marcaProducto { get; set; }
 
     public decimal precioProducto { get; set; }
+    public bool estadoProducto { get; set; } = true;
 
     public int codigoSubCategorias { get; set; }
 

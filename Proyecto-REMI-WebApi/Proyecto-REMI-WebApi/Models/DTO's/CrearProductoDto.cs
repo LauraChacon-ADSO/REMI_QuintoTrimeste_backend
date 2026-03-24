@@ -18,5 +18,6 @@ namespace Proyecto_REMI_WebApi.Models.DTO_s
         public int CodigoSubCategoria { get; set; }
 
         public string documentoProveedor { get; set; } = null!;
+        public bool estadoProducto { get; set; } = true;
     }
 }
